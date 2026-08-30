@@ -108,7 +108,6 @@ class UserProvider extends ChangeNotifier {
   bool _isPremium = true;
   final String _userName = 'Thalam VIP Listener';
   String _userEmail = 'vaanivaai8@gmail.com';
-
   final Color goldAccent = const Color(0xFFD4AF37);
   final Color goldDark = const Color(0xFF8A6D3B);
 
@@ -118,26 +117,10 @@ class UserProvider extends ChangeNotifier {
   String get userName => _userName;
   String get userEmail => _userEmail;
 
-  void setRole(UserRole newRole) {
-    _role = newRole;
-    notifyListeners();
-  }
-
-  void login(String email) {
-    _isAuthenticated = true;
-    _userEmail = email;
-    notifyListeners();
-  }
-
-  void logout() {
-    _isAuthenticated = false;
-    notifyListeners();
-  }
-
-  void activatePremium() {
-    _isPremium = true;
-    notifyListeners();
-  }
+  void setRole(UserRole newRole) { _role = newRole; notifyListeners(); }
+  void login(String email) { _isAuthenticated = true; _userEmail = email; notifyListeners(); }
+  void logout() { _isAuthenticated = false; notifyListeners(); }
+  void activatePremium() { _isPremium = true; notifyListeners(); }
 }
 
 class MusicProvider extends ChangeNotifier {
@@ -158,22 +141,8 @@ class MusicProvider extends ChangeNotifier {
   bool _is3dAudioEnabled = true;
 
   final List<VendorSubmission> _submissions = [
-    VendorSubmission(
-      id: 'sub_1',
-      title: 'Malare (3D Spatial Remaster)',
-      artist: 'Vijay Yesudas & Thalam',
-      genre: 'Acoustic / Romantic',
-      status: 'Pending Review',
-      submittedAt: DateTime.now().subtract(const Duration(hours: 3)),
-    ),
-    VendorSubmission(
-      id: 'sub_2',
-      title: 'Aalaporan Thamizhan (Bass Cut)',
-      artist: 'A.R. Rahman',
-      genre: 'Folk / Anthem',
-      status: 'Approved',
-      submittedAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
+    VendorSubmission(id: 'sub_1', title: 'Malare (3D Spatial Remaster)', artist: 'Vijay Yesudas & Thalam', genre: 'Acoustic / Romantic', status: 'Pending Review', submittedAt: DateTime.now().subtract(const Duration(hours: 3))),
+    VendorSubmission(id: 'sub_2', title: 'Aalaporan Thamizhan (Bass Cut)', artist: 'A.R. Rahman', genre: 'Folk / Anthem', status: 'Approved', submittedAt: DateTime.now().subtract(const Duration(days: 1))),
   ];
 
   MusicProvider() {
@@ -212,17 +181,11 @@ class MusicProvider extends ChangeNotifier {
 
     _interruptionSub = _session.interruptionEventStream.listen((event) {
       if (event.begin) {
-        if (event.type == AudioInterruptionType.duck) {
-          _audioPlayer.setVolume(0.3);
-        } else {
-          _audioPlayer.pause();
-        }
+        if (event.type == AudioInterruptionType.duck) { _audioPlayer.setVolume(0.3); }
+        else { _audioPlayer.pause(); }
       } else {
-        if (event.type == AudioInterruptionType.duck) {
-          _audioPlayer.setVolume(1.0);
-        } else if (event.type == AudioInterruptionType.pause) {
-          _audioPlayer.play();
-        }
+        if (event.type == AudioInterruptionType.duck) { _audioPlayer.setVolume(1.0); }
+        else if (event.type == AudioInterruptionType.pause) { _audioPlayer.play(); }
       }
     });
 
@@ -247,64 +210,38 @@ class MusicProvider extends ChangeNotifier {
       try {
         await _audioPlayer.seek(Duration.zero, index: index);
         _audioPlayer.play();
-      } catch (e) {
-        debugPrint('Playback error: $e');
-      }
+      } catch (e) { debugPrint('Playback error: $e'); }
     }
     notifyListeners();
   }
 
   void togglePlayPause() async {
-    if (_audioPlayer.playing) {
-      _audioPlayer.pause();
-    } else {
-      if (await _session.setActive(true)) {
-        _audioPlayer.play();
-      }
+    if (_audioPlayer.playing) { _audioPlayer.pause(); }
+    else {
+      if (await _session.setActive(true)) { _audioPlayer.play(); }
     }
     notifyListeners();
   }
 
   void next() {
-    if (_audioPlayer.hasNext) {
-      _audioPlayer.seekToNext();
-      _currentIndex = (_currentIndex + 1) % _playlist.length;
-    } else {
-      playSong(0);
-    }
+    if (_audioPlayer.hasNext) { _audioPlayer.seekToNext(); _currentIndex = (_currentIndex + 1) % _playlist.length; }
+    else { playSong(0); }
     notifyListeners();
   }
 
   void previous() {
-    if (_audioPlayer.position.inSeconds > 3) {
-      _audioPlayer.seek(Duration.zero);
-    } else if (_audioPlayer.hasPrevious) {
-      _audioPlayer.seekToPrevious();
-      _currentIndex = (_currentIndex - 1 + _playlist.length) % _playlist.length;
-    } else {
-      playSong(_playlist.length - 1);
-    }
+    if (_audioPlayer.position.inSeconds > 3) { _audioPlayer.seek(Duration.zero); }
+    else if (_audioPlayer.hasPrevious) { _audioPlayer.seekToPrevious(); _currentIndex = (_currentIndex - 1 + _playlist.length) % _playlist.length; }
+    else { playSong(_playlist.length - 1); }
     notifyListeners();
   }
 
-  void toggleShuffle() {
-    _isShuffle = !_isShuffle;
-    _audioPlayer.setShuffleModeEnabled(_isShuffle);
-    notifyListeners();
-  }
-
-  void toggleRepeat() {
-    _isRepeat = !_isRepeat;
-    _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
-    notifyListeners();
-  }
+  void toggleShuffle() { _isShuffle = !_isShuffle; _audioPlayer.setShuffleModeEnabled(_isShuffle); notifyListeners(); }
+  void toggleRepeat() { _isRepeat = !_isRepeat; _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off); notifyListeners(); }
 
   void toggleLike(String songId) {
     final idx = _playlist.indexWhere((s) => s.id == songId);
-    if (idx != -1) {
-      _playlist[idx].isLiked = !_playlist[idx].isLiked;
-      notifyListeners();
-    }
+    if (idx != -1) { _playlist[idx].isLiked = !_playlist[idx].isLiked; notifyListeners(); }
   }
 
   void setPreset(EqPreset preset) {
@@ -319,44 +256,19 @@ class MusicProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateEqBand(int index, double value) {
-    _eqBands[index] = value;
-    _selectedPreset = EqPreset.custom;
-    notifyListeners();
-  }
-
-  void setBassEngineLevel(double level) {
-    _bassEngineLevel = level;
-    notifyListeners();
-  }
-
-  void setSurroundMode(SurroundMode mode) {
-    _surroundMode = mode;
-    notifyListeners();
-  }
-
-  void toggle3dAudio(bool enabled) {
-    _is3dAudioEnabled = enabled;
-    notifyListeners();
-  }
+  void updateEqBand(int index, double value) { _eqBands[index] = value; _selectedPreset = EqPreset.custom; notifyListeners(); }
+  void setBassEngineLevel(double level) { _bassEngineLevel = level; notifyListeners(); }
+  void setSurroundMode(SurroundMode mode) { _surroundMode = mode; notifyListeners(); }
+  void toggle3dAudio(bool enabled) { _is3dAudioEnabled = enabled; notifyListeners(); }
 
   void addVendorSubmission(String title, String artist, String genre) {
-    _submissions.insert(0, VendorSubmission(
-      id: 'sub_${DateTime.now().millisecondsSinceEpoch}',
-      title: title,
-      artist: artist,
-      genre: genre,
-      submittedAt: DateTime.now(),
-    ));
+    _submissions.insert(0, VendorSubmission(id: 'sub_${DateTime.now().millisecondsSinceEpoch}', title: title, artist: artist, genre: genre, submittedAt: DateTime.now()));
     notifyListeners();
   }
 
   void updateSubmissionStatus(String id, String status) {
     final idx = _submissions.indexWhere((s) => s.id == id);
-    if (idx != -1) {
-      _submissions[idx] = _submissions[idx].copyWith(status: status);
-      notifyListeners();
-    }
+    if (idx != -1) { _submissions[idx] = _submissions[idx].copyWith(status: status); notifyListeners(); }
   }
 
   @override
@@ -573,684 +485,10 @@ class SoundEngineScreen extends StatelessWidget {
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: const Color(0xFF14141C), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0x14FFFFFF
-                                                                                                                                                                   const Text('Hardware-level acoustic low-end enhancement for punchy bass.', style: TextStyle(color: Colors.grey, fontSize: 11)),
-              ]),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF14141C),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0x14FFFFFF)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Surround Sound Mode', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  children: SurroundMode.values.map((mode) {
-                    final isSel = music.surroundMode == mode;
-                    return ChoiceChip(
-                      label: Text(mode.name.toUpperCase(), style: TextStyle(fontSize: 11, color: isSel ? Colors.black : Colors.white)),
-                      selected: isSel,
-                      selectedColor: accent,
-                      onSelected: (_) => music.setSurroundMode(mode),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PersistentMiniPlayer extends StatelessWidget {
-  const PersistentMiniPlayer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final music = context.watch<MusicProvider>();
-    final user = context.watch<UserProvider>();
-    final song = music.currentSong;
-    final accent = user.goldAccent;
-
-    if (song == null) return const SizedBox.shrink();
-
-    return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FullPlayerScreen())),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF181820),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0x14FFFFFF)),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 16, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(song.title.substring(0, 2).toUpperCase(), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      Text('${song.artist} • 03:45', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-                    ],
-                  ),
-                ),
-                IconButton(icon: const Icon(Icons.skip_previous, color: Colors.white, size: 22), onPressed: music.previous),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(music.player.playing ? Icons.pause : Icons.play_arrow, color: Colors.black, size: 22),
-                    onPressed: music.togglePlayPause,
-                  ),
-                ),
-                IconButton(icon: const Icon(Icons.skip_next, color: Colors.white, size: 22), onPressed: music.next),
-              ],
-            ),
-            const SizedBox(height: 6),
-            StreamBuilder<Duration>(
-              stream: music.player.positionStream,
-              builder: (context, snapshot) {
-                final pos = snapshot.data ?? Duration.zero;
-                final total = music.player.duration ?? song.duration;
-                final progress = total.inMilliseconds > 0 ? (pos.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0) : 0.0;
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 2.5,
-                    backgroundColor: Colors.white10,
-                    valueColor: AlwaysStoppedAnimation<Color>(accent),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class FullPlayerScreen extends StatelessWidget {
-  const FullPlayerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final music = context.watch<MusicProvider>();
-    final user = context.watch<UserProvider>();
-    final song = music.currentSong;
-    final accent = user.goldAccent;
-
-    if (song == null) return const Scaffold();
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF050505),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.keyboard_arrow_down, size: 32), onPressed: () => Navigator.pop(context)),
-        title: Column(
-          children: [
-            Text('PLAYING FROM THALAM', style: TextStyle(fontSize: 10, letterSpacing: 2, color: accent, fontWeight: FontWeight.bold)),
-            Text(song.album, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              height: 270,
-              width: 270,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                gradient: LinearGradient(colors: [user.goldDark, accent, const Color(0xFF1E1E28)]),
-                border: Border.all(color: accent.withOpacity(0.5), width: 2),
-                boxShadow: [BoxShadow(color: accent.withOpacity(0.2), blurRadius: 30, spreadRadius: 4)],
-              ),
-              child: Center(
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.5),
-                    border: Border.all(color: accent.withOpacity(0.4), width: 4),
-                  ),
-                  child: Icon(Icons.graphic_eq, size: 54, color: accent),
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(song.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), maxLines: 1),
-                      const SizedBox(height: 4),
-                      Text(song.artist, style: const TextStyle(color: Colors.grey, fontSize: 13), maxLines: 1),
-                    ],
-                  ),
-                ),
-                IconButton(icon: Icon(song.isLiked ? Icons.favorite : Icons.favorite_border, color: song.isLiked ? accent : Colors.grey), onPressed: () => music.toggleLike(song.id)),
-              ],
-            ),
-            StreamBuilder<Duration>(
-              stream: music.player.positionStream,
-              builder: (context, snapshot) {
-                final pos = snapshot.data ?? Duration.zero;
-                final total = music.player.duration ?? song.duration;
-                return Column(
-                  children: [
-                    Slider(
-                      value: pos.inSeconds.toDouble().clamp(0.0, total.inSeconds.toDouble()),
-                      max: total.inSeconds.toDouble(),
-                      activeColor: accent,
-                      inactiveColor: Colors.white24,
-                      onChanged: (val) => music.player.seek(Duration(seconds: val.toInt())),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('${pos.inMinutes}:${(pos.inSeconds % 60).toString().padLeft(2, '0')}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                          Text('${total.inMinutes}:${(total.inSeconds % 60).toString().padLeft(2, '0')}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(icon: Icon(Icons.shuffle, color: music.isShuffle ? accent : Colors.grey), onPressed: music.toggleShuffle),
-                IconButton(icon: const Icon(Icons.skip_previous, size: 36), onPressed: music.previous),
-                GestureDetector(
-                  onTap: music.togglePlayPause,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
-                    child: Icon(music.player.playing ? Icons.pause : Icons.play_arrow, color: Colors.black, size: 36),
-                  ),
-                ),
-                IconButton(icon: const Icon(Icons.skip_next, size: 36), onPressed: music.next),
-                IconButton(icon: Icon(Icons.repeat, color: music.isRepeat ? accent : Colors.grey), onPressed: music.toggleRepeat),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(color: const Color(0xFF14141C), borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(Icons.surround_sound, color: accent, size: 18),
-                  const Text('3D Spatial Audio & Surround Active', style: TextStyle(fontSize: 11, color: Colors.white70)),
-                  Icon(Icons.verified, color: accent, size: 18),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
-
-  @override
-  State<SearchScreen> createState() => _SearchScreenState();
-}
-
-class _SearchScreenState extends State<SearchScreen> {
-  String query = '';
-
-  @override
-  Widget build(BuildContext context) {
-    final music = context.watch<MusicProvider>();
-    final results = music.playlist.where((s) => s.title.toLowerCase().contains(query.toLowerCase()) || s.artist.toLowerCase().contains(query.toLowerCase())).toList();
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 95),
-      child: Column(
-        children: [
-          TextField(
-            onChanged: (v) => setState(() => query = v),
-            decoration: InputDecoration(
-              hintText: 'Search songs, artists, raagas...',
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: const Color(0xFF161622),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: results.length,
-              itemBuilder: (context, idx) {
-                final song = results[idx];
-                return ListTile(
-                  leading: const Icon(Icons.music_note),
-                  title: Text(song.title),
-                  subtitle: Text('${song.artist} • ${song.album}'),
-                  onTap: () => music.playSong(music.playlist.indexOf(song)),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class LibraryScreen extends StatelessWidget {
-  const LibraryScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final music = context.watch<MusicProvider>();
-    final user = context.watch<UserProvider>();
-    final accent = user.goldAccent;
-
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          TabBar(
-            indicatorColor: accent,
-            labelColor: accent,
-            unselectedLabelColor: Colors.grey,
-            tabs: const [
-              Tab(text: 'Downloads'),
-              Tab(text: 'Liked Songs'),
-              Tab(text: 'Playlists'),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                ListView(
-                  padding: const EdgeInsets.only(bottom: 95),
-                  children: music.playlist.where((s) => s.isDownloaded).map((s) => ListTile(
-                    leading: const Icon(Icons.download_done, color: Colors.green),
-                    title: Text(s.title),
-                    subtitle: Text(s.artist),
-                    onTap: () => music.playSong(music.playlist.indexOf(s)),
-                  )).toList(),
-                ),
-                ListView(
-                  padding: const EdgeInsets.only(bottom: 95),
-                  children: music.playlist.where((s) => s.isLiked).map((s) => ListTile(
-                    leading: const Icon(Icons.favorite, color: Colors.red),
-                    title: Text(s.title),
-                    subtitle: Text(s.artist),
-                    onTap: () => music.playSong(music.playlist.indexOf(s)),
-                  )).toList(),
-                ),
-                ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    ListTile(
-                      tileColor: const Color(0xFF161622),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      leading: Icon(Icons.add_box, color: accent, size: 36),
-                      title: const Text('Create New Playlist'),
-                      subtitle: const Text('Curate your custom Spatial sound mix'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>();
-    final accent = user.goldAccent;
-
-    return ListView(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 95),
-      children: [
-        Center(
-          child: CircleAvatar(
-            radius: 44,
-            backgroundColor: accent,
-            child: const Text('TL', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black)),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Center(child: Text(user.userName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-        Center(child: Text(user.userEmail, style: const TextStyle(color: Colors.grey))),
-        const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161622),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: accent.withOpacity(0.3)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Membership Tier', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  Text('Thalam Golden VIP', style: TextStyle(color: accent, fontWeight: FontWeight.bold, fontSize: 16)),
-                ],
-              ),
-              const Icon(Icons.verified, color: Colors.blueAccent),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-          icon: const Icon(Icons.logout),
-          label: const Text('Sign Out'),
-          onPressed: () => user.logout(),
-        ),
-      ],
-    );
-  }
-}
-
-class VendorScreen extends StatefulWidget {
-  const VendorScreen({super.key});
-
-  @override
-  State<VendorScreen> createState() => _VendorScreenState();
-}
-
-class _VendorScreenState extends State<VendorScreen> {
-  final _nameCtrl = TextEditingController();
-  final _mobileCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
-
-  void _registerVendor() {
-    if (_nameCtrl.text.isEmpty || _mobileCtrl.text.isEmpty || _emailCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
-      return;
-    }
-    final music = context.read<MusicProvider>();
-    music.addVendorSubmission(_nameCtrl.text, _mobileCtrl.text, _emailCtrl.text);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vendor Registered Successfully!')));
-    _nameCtrl.clear();
-    _mobileCtrl.clear();
-    _emailCtrl.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>();
-    final accent = user.goldAccent;
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [accent.withOpacity(0.2), const Color(0xFF121218)]),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: accent.withOpacity(0.5)),
-          ),
-          child: const Row(
-            children: [
-              CircleAvatar(radius: 25, backgroundColor: Colors.white, child: Icon(Icons.store, color: Colors.black)),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Vendor Registration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('Upload your music to Thalam', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text("Register as Vendor", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: accent)),
-        const SizedBox(height: 16),
-        TextField(controller: _nameCtrl, decoration: InputDecoration(labelText: 'Name', prefixIcon: const Icon(Icons.person), filled: true, fillColor: const Color(0xFF161622), border: OutlineInputBorder
-                                                                                     InputDecoration(labelText: 'Name', prefixIcon: const Icon(Icons.person), filled: true, fillColor: const Color(0xFF161622), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none))),
-        const SizedBox(height: 12),
-        TextField(controller: _mobileCtrl, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: 'Mobile Number', prefixIcon: const Icon(Icons.phone), filled: true, fillColor: const Color(0xFF161622), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none))),
-        const SizedBox(height: 12),
-        TextField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: 'Email', prefixIcon: const Icon(Icons.email), filled: true, fillColor: const Color(0xFF161622), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none))),
-        const SizedBox(height: 24),
-        SizedBox(width: double.infinity, height: 50, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: accent, foregroundColor: Colors.black), onPressed: _registerVendor, child: const Text('Register & Upload Music', style: TextStyle(fontWeight: FontWeight.bold)))),
-        const SizedBox(height: 24),
-        Text("Your Submissions", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: accent)),
-        const SizedBox(height: 12),
-        ...context.watch<MusicProvider>().submissions.map((sub) {
-          return Card(
-            color: const Color(0xFF14141C),
-            margin: const EdgeInsets.only(bottom: 10),
-            child: ListTile(
-              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: accent.withOpacity(0.2), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.audio_file, color: accent)),
-              title: Text(sub.title),
-              subtitle: Text("${sub.artist} • ${sub.genre}"),
-              trailing: Text(
-                sub.status,
-                style: TextStyle(
-                  color: sub.status == 'Approved' ? Colors.green : (sub.status == 'Rejected' ? Colors.red : Colors.orange),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ],
-    );
-  }
-}
-
-class AdminLoginScreen extends StatefulWidget {
-  const AdminLoginScreen({super.key});
-
-  @override
-  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
-}
-
-class _AdminLoginScreenState extends State<AdminLoginScreen> {
-  final _userCtrl = TextEditingController();
-  final _passCtrl = TextEditingController();
-
-  void _login() {
-    final user = context.read<UserProvider>();
-    if (_userCtrl.text == 'ThalamMusic2026' && _passCtrl.text == 'Thalam@2026') {
-      user.setRole(UserRole.admin);
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid Admin Credentials! Try again')));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = context.watch<UserProvider>().goldAccent;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF050505),
-      appBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.transparent),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.admin_panel_settings, color: accent, size: 80),
-            const SizedBox(height: 24),
-            TextField(controller: _userCtrl, decoration: InputDecoration(labelText: 'Admin User ID', prefixIcon: const Icon(Icons.person), filled: true, fillColor: const Color(0xFF161622), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none))),
-            const SizedBox(height: 16),
-            TextField(controller: _passCtrl, obscureText: true, decoration: InputDecoration(labelText: 'Password', prefixIcon: const Icon(Icons.lock), filled: true, fillColor: const Color(0xFF161622), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none))),
-            const SizedBox(height: 24),
-            SizedBox(width: double.infinity, height: 50, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: accent, foregroundColor: Colors.black), onPressed: _login, child: const Text('Login as Admin', style: TextStyle(fontWeight: FontWeight.bold)))),
-            const SizedBox(height: 12),
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Back to Customer App', style: TextStyle(color: Colors.white54))),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AdminScreen extends StatelessWidget {
-  const AdminScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final music = context.watch<MusicProvider>();
-    final user = context.watch<UserProvider>();
-    final accent = user.goldAccent;
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [accent.withOpacity(0.2), const Color(0xFF121218)]),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: accent.withOpacity(0.5)),
-          ),
-          child: Row(
-            children: [
-              const CircleAvatar(radius: 25, backgroundColor: Colors.white, child: Icon(Icons.shield, color: Colors.black)),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Thalam Control Center', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('Administrator: ${user.userName}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(child: _buildStatCard(context, "Total Songs", "${music.playlist.length}", Icons.music_note)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildStatCard(context, "Pending Approvals", "${music.submissions.where((s) => s.status == 'Pending Review').length}", Icons.pending_actions)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(child: _buildStatCard(context, "Total Revenue", "₹50,000", Icons.currency_rupee)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildStatCard(context, "Premium Users", "1,200", Icons.verified)),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Text("Pending Song Approvals", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: accent)),
-        const SizedBox(height: 12),
-        ...music.submissions.map((sub) {
-          return Card(
-            color: const Color(0xFF14141C),
-            margin: const EdgeInsets.only(bottom: 10),
-            child: ListTile(
-              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: accent.withOpacity(0.2), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.audio_file, color: accent)),
-              title: Text(sub.title),
-              subtitle: Text("${sub.artist} • ${sub.genre}"),
-              trailing: DropdownButton<String>(
-                value: sub.status,
-                dropdownColor: const Color(0xFF14141C),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-                underline: Container(height: 1, color: accent),
-                items: const [
-                  DropdownMenuItem(value: 'Approved', child: Text('Approved')),
-                  DropdownMenuItem(value: 'Rejected', child: Text('Rejected')),
-                  DropdownMenuItem(value: 'Pending Review', child: Text('Pending')),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    music.updateSubmissionStatus(sub.id, val);
-                  }
-                },
-              ),
-            ),
-          );
-        }).toList(),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon) {
-    final accent = context.watch<UserProvider>().goldAccent;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF14141C),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x14FFFFFF)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: accent, size: 28),
-          const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text(title, style: const TextStyle(fontSize: 11, color: Colors.white54)),
-        ],
-      ),
-    );
-  }
-}
+          decoration: BoxDecoration(color: const Color(0xFF14141C), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0x14FFFFFF))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Surround Sound Mode', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Wrap(spacing: 8, children: SurroundMode.values.map((mode) {
+              final isSel = music.surroundMode == mode;
+              
