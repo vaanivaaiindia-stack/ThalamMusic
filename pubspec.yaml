@@ -1,0 +1,24 @@
+name: thalam_music
+description: "Thalam Music - Spatial Audio & Sound Master Streaming App"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2
+  just_audio: ^0.9.36
+  audio_session: ^0.1.18
+  google_fonts: ^6.1.0
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
